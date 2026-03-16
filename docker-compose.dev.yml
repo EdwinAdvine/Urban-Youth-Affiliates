@@ -1,0 +1,51 @@
+# Y&U Affiliates — Development overrides
+# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# What this adds over the base file:
+#   - Hot-reload for backend (uvicorn --reload via volume mount)
+#   - Hot-reload for frontend (Vite dev server via volume mount)
+#   - Exposes postgres port for local DB tools (TablePlus, psql, etc.)
+#   - DEBUG=true, more verbose logging
+
+services:
+  postgres:
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
+    environment:
+      DEBUG: "true"
+      ENVIRONMENT: development
+      DATABASE_ECHO: "true"
+    volumes:
+      - ./backend:/app
+      - /app/__pycache__
+    healthcheck:
+      start_period: 10s  # faster in dev — no migrations to wait for
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile.dev
+    command: pnpm --filter @yua/web dev --host 0.0.0.0
+    environment:
+      VITE_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./apps/web:/app/apps/web
+      - ./packages:/app/packages
+      - /app/node_modules
+      - /app/apps/web/node_modules
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/"]
+      start_period: 20s
+
+  worker:
+    command: celery -A app.tasks.celery_app worker --loglevel=debug --concurrency=1
+    volumes:
+      - ./backend:/app
