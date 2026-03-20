@@ -59,8 +59,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: yua_backend
-    ports:
-      - "${BACKEND_PORT:-8000}:8000"
+    expose:
+      - "8000"
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-yua_user}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-yua_db}
       REDIS_URL: redis://redis:6379
