@@ -27,6 +27,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    expose:
+      - "5432"
 
   redis:
     image: redis:7-alpine
@@ -49,6 +51,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    expose:
+      - "6379"
 
   backend:
     build:
@@ -56,11 +60,11 @@ services:
       dockerfile: Dockerfile
     container_name: yua_backend
     ports:
-      - "127.0.0.1:8000:8000"
+      - "${BACKEND_PORT:-8000}:8000"
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-yua_user}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-yua_db}
       REDIS_URL: redis://redis:6379
-      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in .env}
+      SECRET_KEY: ${SECRET_KEY:-change-this-secret-key-in-production-minimum-32-chars}
       PAYSTACK_SECRET_KEY: ${PAYSTACK_SECRET_KEY:-}
       PAYSTACK_PUBLIC_KEY: ${PAYSTACK_PUBLIC_KEY:-}
       PAYSTACK_WEBHOOK_SECRET: ${PAYSTACK_WEBHOOK_SECRET:-}
@@ -94,7 +98,7 @@ services:
       dockerfile: apps/web/Dockerfile
     container_name: yua_frontend
     ports:
-      - "3010:3000"
+      - "${FRONTEND_PORT:-3010}:3000"
     environment:
       VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
     depends_on:
@@ -117,7 +121,7 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-yua_user}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-yua_db}
       REDIS_URL: redis://redis:6379
-      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in .env}
+      SECRET_KEY: ${SECRET_KEY:-change-this-secret-key-in-production-minimum-32-chars}
       CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/0}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
       SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
