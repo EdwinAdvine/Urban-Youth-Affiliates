@@ -8,15 +8,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_
 from sqlalchemy.orm import selectinload
 
-from app.deps import get_db, get_current_user
-from app.models.user import User, UserRole
+from datetime import datetime, timezone
+from app.deps import get_db, get_authenticated_user
+from app.schemas.auth import UserResponse
+from app.models.user import UserRole
 from app.models.affiliate_profile import AffiliateProfile, AffiliateStatus
 from app.schemas.affiliate import (
     AffiliateProfileResponse,
     AffiliateProfileUpdate,
     AffiliateApprovalRequest,
 )
-from app.services.auth_service import get_current_user as get_user_service  # not used
 
 router = APIRouter()
 
@@ -24,7 +25,7 @@ router = APIRouter()
 async def list_admin_affiliates(
     db: AsyncSession = Depends(get_db),
     status: Optional[AffiliateStatus] = Query(None),
-    current_user: User = Depends(get_current_user)
+    current_user: UserResponse = Depends(get_authenticated_user)
 ):
     if current_user.role not in (UserRole.super_admin, UserRole.admin):
         raise HTTPException(status_code=403, detail="Admin access required")
@@ -40,7 +41,7 @@ async def update_admin_affiliate(
     profile_id: int,
     data: AffiliateProfileUpdate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: UserResponse = Depends(get_authenticated_user)
 ):
     if current_user.role not in (UserRole.super_admin, UserRole.admin):
         raise HTTPException(status_code=403, detail="Admin access required")
@@ -60,7 +61,7 @@ async def approve_admin_affiliate(
     profile_id: int,
     data: AffiliateApprovalRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: UserResponse = Depends(get_authenticated_user)
 ):
     if current_user.role not in (UserRole.super_admin, UserRole.admin):
         raise HTTPException(status_code=403, detail="Admin access required")
@@ -83,7 +84,7 @@ async def reject_admin_affiliate(
     profile_id: int,
     data: AffiliateApprovalRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: UserResponse = Depends(get_authenticated_user)
 ):
     if current_user.role not in (UserRole.super_admin, UserRole.admin):
         raise HTTPException(status_code=403, detail="Admin access required")
@@ -106,7 +107,7 @@ async def suspend_admin_affiliate(
     profile_id: int,
     data: AffiliateApprovalRequest,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: UserResponse = Depends(get_authenticated_user)
 ):
     if current_user.role not in (UserRole.super_admin, UserRole.admin):
         raise HTTPException(status_code=403, detail="Admin access required")

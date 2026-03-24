@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Any
 
-from app.deps import get_db, get_current_user
+from app.deps import get_db, get_authenticated_user
 from app.schemas.auth import UserResponse
 from app.models.user import UserRole
 from app.services.catalog_service import (
@@ -28,7 +28,7 @@ from fastapi import HTTPException
 async def list_admin_stores(
     db: Any = Depends(get_db),
     active_only: bool = Query(False),
-    current_user: UserResponse = Depends(get_current_user)
+    current_user: UserResponse = Depends(get_authenticated_user)
 ):
     if current_user.role not in (UserRole.super_admin, UserRole.admin):
         raise HTTPException(status_code=403, detail="Admin access required")
@@ -39,7 +39,7 @@ async def list_admin_stores(
 async def create_admin_store(
     data: StoreCreate,
     db: Any = Depends(get_db),
-    current_user: UserResponse = Depends(get_current_user)
+    current_user: UserResponse = Depends(get_authenticated_user)
 ):
     if current_user.role not in (UserRole.super_admin, UserRole.admin):
         raise HTTPException(status_code=403, detail="Admin access required")
@@ -50,7 +50,7 @@ async def create_admin_store(
 async def get_admin_store(
     store_id: int,
     db: Any = Depends(get_db),
-    current_user: UserResponse = Depends(get_current_user)
+    current_user: UserResponse = Depends(get_authenticated_user)
 ):
     if current_user.role not in (UserRole.super_admin, UserRole.admin):
         raise HTTPException(status_code=403, detail="Admin access required")
@@ -62,7 +62,7 @@ async def update_admin_store(
     store_id: int,
     data: StoreUpdate,
     db: Any = Depends(get_db),
-    current_user: UserResponse = Depends(get_current_user)
+    current_user: UserResponse = Depends(get_authenticated_user)
 ):
     if current_user.role not in (UserRole.super_admin, UserRole.admin):
         raise HTTPException(status_code=403, detail="Admin access required")
@@ -73,7 +73,7 @@ async def update_admin_store(
 async def deactivate_admin_store(
     store_id: int,
     db: Any = Depends(get_db),
-    current_user: UserResponse = Depends(get_current_user)
+    current_user: UserResponse = Depends(get_authenticated_user)
 ):
     if current_user.role not in (UserRole.super_admin, UserRole.admin):
         raise HTTPException(status_code=403, detail="Admin access required")
@@ -83,7 +83,7 @@ async def deactivate_admin_store(
 async def rotate_admin_store_api_key(
     store_id: int,
     db: Any = Depends(get_db),
-    current_user: UserResponse = Depends(get_current_user)
+    current_user: UserResponse = Depends(get_authenticated_user)
 ):
     if current_user.role not in (UserRole.super_admin, UserRole.admin):
         raise HTTPException(status_code=403, detail="Admin access required")
