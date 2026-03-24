@@ -3,7 +3,7 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: yua_postgres
+
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-yua_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
@@ -32,7 +32,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: yua_redis
+
     command: >
       sh -c '
         if [ -n "$$REDIS_PASSWORD" ]; then
@@ -58,7 +58,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: yua_backend
+
     expose:
       - "8000"
     environment:
@@ -96,7 +96,7 @@ services:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
-    container_name: yua_frontend
+
     ports:
       - "${FRONTEND_PORT:-3010}:3000"
     environment:
@@ -116,7 +116,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: yua_worker
+
     command: celery -A app.tasks.celery_app worker --loglevel=info --concurrency=4
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-yua_user}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-yua_db}

@@ -26,9 +26,7 @@ RUN chmod +x /entrypoint.sh
 # Expose port
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=15s --timeout=10s --start-period=60s --retries=5 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
+# Health check is defined in docker-compose.yml (avoid duplication)
 
 # Run migrations + seed + server
 ENTRYPOINT ["/entrypoint.sh"]
