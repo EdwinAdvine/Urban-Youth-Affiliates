@@ -66,7 +66,7 @@ export default function AdminAnalyticsPage() {
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="name" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip formatter={(v: number) => `KES ${Number(v).toLocaleString()}`} />
+              <Tooltip formatter={(v: unknown) => `KES ${Number(v).toLocaleString()}`} />
               <Bar dataKey="value" fill="#f59e0b" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
